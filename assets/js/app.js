@@ -4,7 +4,7 @@ const logForm = document.getElementById('log-form');
 const descriptionInput = document.getElementById('description');
 const severityInput = document.getElementById('severity');
 const logsList = document.getElementById('logs-list');
-const fiLterBtn = document.getElementById('filter-btn')
+const filterBtn = document.getElementById('filter-btn')
 
 function saveToLocalStorage() {
     localStorage.setItem('fieldLogs', JSON.stringify(logs));
@@ -17,7 +17,7 @@ function renderLogs(filter = null) {
         ? logs.filter(log => log.severity === 'high')
         : logs;
 
-    if (logsToRender.lenght === 0) {
+    if (logsToRender.length === 0) {
         logsList.innerHTML = '<li class ="empty-state">No logs found.</li>';
         return;
     }
@@ -26,18 +26,25 @@ function renderLogs(filter = null) {
         const li = document.createElement('li');
         li.className = `log-card border-${log.severity}`;
 
-        li.innerHTML = `
+        li.innerHTML= `
             <div class="log-info">
                 <h3>${log.description}</h3>
                 <span>${new Date(log.id).toLocaleString()}</span>
             </div>
-            <span class="badge" style="background-color: var(--status-${log,severity})">
-                ${log.severity.toUpperCase()}
-                </span>
-                }`;
-        logsList.appendChild(li)
 
-    });
+            <div class="actions">
+                <span class='badge' style="background-color: var(--status-${log.severity})">
+                    ${log.severity.toUpperCase()}
+                </span>
+
+                <button class='delete-btn' data-id="${log.id}">
+                &times;
+                </button>
+            </div>
+                `;
+        logsList.appendChild(li);
+            
+});
 }
 
 function addLog(e) {
@@ -60,7 +67,7 @@ function addLog(e) {
     logs.push(newLog);
 
     saveToLocalStorage();
-    renderLogs;
+    renderLogs();
 
     logForm.reset();
 }
@@ -82,3 +89,23 @@ filterBtn.addEventListener('click', () => {
     }
 });
 
+function removeLog(id){
+    if (!confirm('Are you sure you want to delete this log?'))return;
+
+logs = logs.filter(log => log.id !== id);
+
+saveToLocalStorage();
+renderLogs();
+}
+
+logsList.addEventListener('click', (e) =>{
+    const btn = e.target.closest('.delete-btn');
+
+    if (!btn) return;
+
+    const id = Number(btn.dataset.id);
+
+    removeLog(id);
+
+
+});
